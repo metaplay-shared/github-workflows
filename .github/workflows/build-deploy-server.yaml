@@ -1,0 +1,113 @@
+# This file is part of Metaplay SDK which is released under the Metaplay SDK License.
+
+# Reusable Github Actions workflow to build the server docker image and deploy it into the cloud
+name: build-deploy-server
+
+on:
+  workflow_call:
+    secrets:
+      METAPLAY_CREDENTIALS:
+        description: "Metaplay cloud machine account credentials"
+        required: true
+
+    inputs:
+      organization:
+        description: "Name of the organization (must match the organization in the portal)"
+        required: true
+        type: string
+      project:
+        description: "Name of the project (must match the project in the portal)"
+        required: true
+        type: string
+      environment:
+        description: "Name of the environment to deploy to (must match the environment in portal)"
+        required: true
+        type: string
+
+      image-tag:
+        description: "Image tag to use for the docker build"
+        required: false
+        type: string
+        default: ${{ github.sha }}
+
+      working-directory:
+        description: "Working directory under project repository to build images in"
+        required: false
+        type: string
+        default: .
+      project-root:
+        description: "Project directory path relative to docker-path without trailing slash"
+        required: false
+        type: string
+        default: .
+      sdk-root:
+        description: "Metaplay SDK directory path relative to docker-path without trailing slash"
+        required: false
+        type: string
+        default: MetaplaySDK
+      backend-root:
+        description: "Userland Backend directory, relative to docker-path without trailing slash"
+        required: false
+        type: string
+        default: Backend
+      shared-code-root:
+        description: "Directory where shared code is located, relative to docker-path without trailing slash"
+        required: false
+        type: string
+        default: Assets/SharedCode
+      docker-path:
+        description: "Docker build path relative to working-directory"
+        required: false
+        type: string
+        default: .
+
+      deployment-values-file:
+        description: "Relative path from repo root for the Helm values file to use for deployment"
+        required: true
+        type: string
+      helm-repo:
+        description: "Helm repository for deployment chart"
+        required: false
+        type: string
+        default: "https://charts.metaplay.dev/"
+      helm-chart-version:
+        description: "Helm chart version to use"
+        required: true
+        type: string
+      helm-version:
+        description: "Helm version"
+        required: false
+        type: string
+        default: "v3.9.0"
+
+jobs:
+  # Build the server docker image & push to docker registry
+  build-server:
+    uses: ./.github/workflows/build-image.yaml
+    secrets:
+      METAPLAY_CREDENTIALS: ${{ secrets.METAPLAY_CREDENTIALS }}
+    with:
+      organization: ${{ inputs.organization }}
+      project: ${{ inputs.project }}
+      environment: ${{ inputs.environment }}
+      working-directory: ${{ inputs.working-directory }}
+      project-root: ${{ inputs.project-root }}
+      sdk-root: ${{ inputs.sdk-root }}
+      backend-root: ${{ inputs.backend-root }}
+      shared-code-root: ${{ inputs.shared-code-root }}
+      docker-path: ${{ inputs.docker-path }}
+
+  # Deploy the game server using the built server image
+  deploy-server:
+    needs: build-server
+    uses: ./.github/workflows/deploy-server.yaml
+    secrets:
+      METAPLAY_CREDENTIALS: ${{ secrets.METAPLAY_CREDENTIALS }}
+    with:
+      organization: ${{ inputs.organization }}
+      project: ${{ inputs.project }}
+      environment: ${{ inputs.environment }}
+      deployment-values-file: ${{ inputs.deployment-values-file }}
+      helm-repo: ${{ inputs.helm-repo }}
+      helm-chart-version: ${{ inputs.helm-chart-version }}
+      helm-version: ${{ inputs.helm-version }}

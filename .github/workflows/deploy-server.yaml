@@ -1,0 +1,106 @@
+# This file is part of Metaplay SDK which is released under the Metaplay SDK License.
+
+# Reusable Github Actions workflow to deploy a game server
+name: deploy-server
+
+on:
+  workflow_call:
+    secrets:
+      METAPLAY_CREDENTIALS:
+        description: "Metaplay cloud machine account credentials"
+        required: true
+
+    inputs:
+      organization:
+        description: "Name of the organization (must match the organization in the portal)"
+        required: true
+        type: string
+      project:
+        description: "Name of the project (must match the project in the portal)"
+        required: true
+        type: string
+      environment:
+        description: "Name of the environment to deploy to (must match the environment in portal)"
+        required: true
+        type: string
+
+      image-tag:
+        description: "Image tag to use for server docker image"
+        required: false
+        type: string
+        default: ${{ github.sha }}
+
+      deployment-values-file:
+        description: "Relative path from repo root for the Helm values file to use for deployment"
+        required: true
+        type: string
+      helm-repo:
+        description: "Helm repository for deployment chart"
+        required: false
+        type: string
+        default: "https://charts.metaplay.dev/"
+      helm-chart-version:
+        description: "Helm chart version to use"
+        required: true
+        type: string
+      helm-version:
+        description: "Helm version"
+        required: false
+        type: string
+        default: "v3.9.0"
+
+jobs:
+  # Deploy the server using Helm
+  deploy-server:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository.
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          show-progress: false # suppress the noisy progress status output
+
+      # Install required tools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      # Install metaplay-auth
+      - name: Set up metaplay-auth
+        run: npm i -g @metaplay/metaplay-auth
+
+      # Login to Metaplay cloud with the machine account credentials
+      - name: Login to Metaplay cloud
+        env:
+          METAPLAY_CREDENTIALS: ${{ secrets.METAPLAY_CREDENTIALS }}
+        run: metaplay-auth machine-login
+
+      # Get Kubernetes credentials (kubeconfig)
+      - name: Get Kubernetes credentials
+        run: |
+          KUBECONFIG=$(mktemp)
+          metaplay-auth get-kubeconfig -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }} > $KUBECONFIG
+          echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_ENV
+
+      # Get Kubernetes credentials & deploy the game server using Helm
+      - name: Deploy game server
+        run: |
+          helm upgrade --install \
+            --wait \
+            --kubeconfig $KUBECONFIG \
+            --repo ${{ inputs.helm-repo }} \
+            --version ${{ inputs.helm-chart-version }} \
+            -f ${{ inputs.deployment-values-file }} \
+            -n ${{ inputs.project }}-${{ inputs.environment }} \
+            --set-string image.tag="${{ inputs.image-tag }}" \
+            gameserver \
+            metaplay-gameserver
+
+      # Check deployed server status
+      - name: Check deployed server status
+        run: |
+          kubectl -n ${{ inputs.project }}-${{ inputs.environment }} get pods
+          metaplay-auth check-deployment ${{ inputs.project }}-${{ inputs.environment }}

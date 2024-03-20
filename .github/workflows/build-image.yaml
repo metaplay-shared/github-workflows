@@ -79,9 +79,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Install metaplay-auth
-      - name: Set up metaplay-auth
-        run: npm install -g @metaplay/metaplay-auth
+      # Install moon (for building metaplay-auth locally)
+      - name: Setup Moon
+        uses: moonrepo/setup-toolchain@v0
+
+      # Build locally and "install" by adding run script as /usr/local/bin/metaplay-auth (npm i -g ./package.tgz does not work)
+      - name: Build metaplay-auth
+        working-directory: AuthCLI
+        run: |
+          moon run build
+          cat > /usr/local/bin/metaplay-auth <<- EOF
+            #!/bin/bash
+            exec node "$(pwd)/dist/index.js" "\$@"
+          EOF
+          chmod +x /usr/local/bin/metaplay-auth
+          cat /usr/local/bin/metaplay-auth
 
       # Login to Metaplay cloud with the machine account credentials
       - name: Login to Metaplay cloud

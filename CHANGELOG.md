@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2] - 2024-03-20
+
+### Changed
+
+* Simplify the steps using the new `metaplay-auth get-docker-login`
+* Bump default Helm version to v3.14.3.
+
 ## [0.0.1] - 2024-03-12
 
 ### Added

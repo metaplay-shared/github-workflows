@@ -89,13 +89,6 @@ jobs:
           METAPLAY_CREDENTIALS: ${{ secrets.METAPLAY_CREDENTIALS }}
         run: metaplay-auth machine-login
 
-      # Resolve AWS region and ECR repository of the deployment
-      - name: Get deployment information
-        run: |
-          ENVIRONMENT_INFO=$(metaplay-auth get-environment -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }})
-          echo "AWS_REGION=$(echo $ENVIRONMENT_INFO | jq -r .deployment.aws_region)" >> $GITHUB_ENV
-          echo "ECR_REPO=$(echo $ENVIRONMENT_INFO | jq -r .deployment.ecr_repo)" >> $GITHUB_ENV
-
       # Build docker image for the server (also includes the botclient)
       - name: Build server image
         working-directory: ${{ inputs.working-directory }}
@@ -110,12 +103,13 @@ jobs:
             --build-arg BACKEND_DIR=${{ inputs.backend-root }} \
             --build-arg SHARED_CODE_DIR=${{ inputs.shared-code-root }} \
             -f ${{ inputs.sdk-root }}/Dockerfile.server \
-            -t ${{ env.ECR_REPO }}:${{ inputs.image-tag }} \
+            -t gameserver:${{ inputs.image-tag }} \
             .
 
-      # Login to ECR with credentials from metaplay-auth & push docker image to ECR
+      # Login to docker repository with credentials from metaplay-auth & push docker image
       - name: Push docker image to repository
         run: |
-          eval $(metaplay-auth get-aws-credentials -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }} --format env)
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REPO }}
-          docker push ${{ env.ECR_REPO }}:${{ inputs.image-tag }}
+          eval $(metaplay-auth get-docker-login -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }} --format env)
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin $DOCKER_REPO
+          docker tag gameserver:${{ inputs.image-tag }} $DOCKER_REPO:${{ inputs.image-tag }}
+          docker push $DOCKER_REPO:${{ inputs.image-tag }}

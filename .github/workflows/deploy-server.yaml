@@ -96,7 +96,7 @@ jobs:
             -f ${{ inputs.deployment-values-file }} \
             -n ${{ inputs.project }}-${{ inputs.environment }} \
             --set-string image.tag="${{ inputs.image-tag }}" \
-            gameserver \
+            ${{ inputs.project }}-${{ inputs.environment }} \
             metaplay-gameserver
 
       # Check deployed server status

@@ -103,7 +103,7 @@ jobs:
             --build-arg BACKEND_DIR=${{ inputs.backend-root }} \
             --build-arg SHARED_CODE_DIR=${{ inputs.shared-code-root }} \
             -f ${{ inputs.sdk-root }}/Dockerfile.server \
-            -t gameserver:${{ inputs.image-tag }} \
+            -t ${{ inputs.project }}-${{ inputs.environment }}:${{ inputs.image-tag }} \
             .
 
       # Login to docker repository with credentials from metaplay-auth & push docker image
@@ -111,5 +111,5 @@ jobs:
         run: |
           eval $(metaplay-auth get-docker-login -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }} --format env)
           echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin $DOCKER_REPO
-          docker tag gameserver:${{ inputs.image-tag }} $DOCKER_REPO:${{ inputs.image-tag }}
+          docker tag ${{ inputs.project }}-${{ inputs.environment }}:${{ inputs.image-tag }} $DOCKER_REPO:${{ inputs.image-tag }}
           docker push $DOCKER_REPO:${{ inputs.image-tag }}

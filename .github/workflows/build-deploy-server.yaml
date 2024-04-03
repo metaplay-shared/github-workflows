@@ -90,6 +90,7 @@ jobs:
       organization: ${{ inputs.organization }}
       project: ${{ inputs.project }}
       environment: ${{ inputs.environment }}
+      image-tag: ${{ inputs.image-tag }}
       working-directory: ${{ inputs.working-directory }}
       project-root: ${{ inputs.project-root }}
       sdk-root: ${{ inputs.sdk-root }}
@@ -107,6 +108,7 @@ jobs:
       organization: ${{ inputs.organization }}
       project: ${{ inputs.project }}
       environment: ${{ inputs.environment }}
+      image-tag: ${{ inputs.image-tag }}
       deployment-values-file: ${{ inputs.deployment-values-file }}
       helm-repo: ${{ inputs.helm-repo }}
       helm-chart-version: ${{ inputs.helm-chart-version }}

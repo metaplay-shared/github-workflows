@@ -78,29 +78,7 @@ jobs:
           METAPLAY_CREDENTIALS: ${{ secrets.METAPLAY_CREDENTIALS }}
         run: metaplay-auth machine-login
 
-      # Get Kubernetes credentials (kubeconfig)
-      - name: Get Kubernetes credentials
-        run: |
-          KUBECONFIG=$(mktemp)
-          metaplay-auth get-kubeconfig -o ${{ inputs.organization }} -p ${{ inputs.project }} -e ${{ inputs.environment }} > $KUBECONFIG
-          echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_ENV
-
       # Get Kubernetes credentials & deploy the game server using Helm
       - name: Deploy game server
         run: |
-          helm upgrade --install \
-            --wait \
-            --kubeconfig $KUBECONFIG \
-            --repo ${{ inputs.helm-repo }} \
-            --version ${{ inputs.helm-chart-version }} \
-            -f ${{ inputs.deployment-values-file }} \
-            -n ${{ inputs.project }}-${{ inputs.environment }} \
-            --set-string image.tag="${{ inputs.image-tag }}" \
-            gameserver \
-            metaplay-gameserver
-
-      # Check deployed server status
-      - name: Check deployed server status
-        run: |
-          kubectl -n ${{ inputs.project }}-${{ inputs.environment }} get pods
-          metaplay-auth check-deployment ${{ inputs.project }}-${{ inputs.environment }}
+          metaplay-auth deploy-server ${{ inputs.organization }}-${{ inputs.project }}-${{ inputs.environment }} ${{ inputs.image-tag }} --helm-chart-repo=${{ inputs.helm-repo }} --helm-chart-version=${{ inputs.helm-chart-version }} --values=${{ inputs.deployment-values-file }}

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.3] - Unpublished
+
+### Changed
+
+* Use the new `metaplay-auth` commands `push-docker-image` and `deploy-server` in the build and deploy steps.
+
 ## [0.0.2] - 2024-03-20
 
 ### Changed

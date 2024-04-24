@@ -108,4 +108,4 @@ jobs:
 
       # Push docker image to target environment registry
       - name: Push docker image to target environment
-        run: metaplay-auth push-docker-image ${{ inputs.organization }}-${{ inputs.project }}-${{ inputs.environment }} ${{ inputs.image-tag }}
+        run: metaplay-auth push-docker-image ${{ inputs.organization }}-${{ inputs.project }}-${{ inputs.environment }} gameserver:${{ inputs.image-tag }}

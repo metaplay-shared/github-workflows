@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.0.3] - Unpublished
+## [0.0.4] - 2024-08-29
+
+* Added the `setup-metaplay` composite action which can be used to get more control over the steps in your Github Action workflows.
+
+## [0.0.3] - 2024-04-24
 
 ### Changed
 

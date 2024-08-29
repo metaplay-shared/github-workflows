@@ -1,0 +1,31 @@
+name: 'Setup Metaplay'
+description: 'Set up the Metaplay CLI and sign in with provided machine user credentials'
+inputs:
+  version:
+    description: 'Metaplay CLI version to install'
+    required: false
+    default: 'latest'
+  credentials:
+    description: 'Metaplay machine user credentials'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Metaplay CLI
+      run: npm i -g @metaplay/metaplay-auth@${{ inputs.version }}
+      shell: bash
+
+    - name: Authenticate with Metaplay
+      run: |
+        export METAPLAY_CREDENTIALS=${{ inputs.credentials }}
+        metaplay-auth machine-login
+      shell: bash
+
+    - name: Install Helm v3
+      uses: azure/setup-helm@v4
+
+    - name: Verify setup
+      run: |
+        metaplay-auth --version
+        echo "Metaplay setup complete!"
+      shell: bash

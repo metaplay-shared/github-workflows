@@ -24,17 +24,14 @@ jobs:
       # check out repository with helm values
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          show-progress: false # suppress the noisy progress status output
 
       - name: Setup Metaplay CLI
-        uses: metaplay/github-actions/setup-metaplay@composites
+        uses: metaplay/github-workflows/setup-metaplay@v0
         with:
-          version: 'next'
           credentials: ${{ secrets.METAPLAY_CREDENTIALS}}
 
       - name: Check access to target environment
-        run: metaplay-auth get-environment idler-develop
+        run: metaplay-auth get-environment <my-environment>
 
       - name: Build server image
         run: |
@@ -42,18 +39,18 @@ jobs:
             --platform linux/amd64 \
             -t gameserver:$GITHUB_SHA \
             -f MetaplaySDK/Dockerfile.server \
-            --build-arg PROJECT_ROOT="Samples/Idler" \
+            --build-arg PROJECT_ROOT="." \
             --build-arg COMMIT_ID=$GITHUB_SHA \
             --build-arg BUILD_NUMBER=$GITHUB_RUN_NUMBER \
             .
 
       - name: Push server image
-        run: metaplay-auth push-docker-image idler-develop gameserver:$GITHUB_SHA
+        run: metaplay-auth push-docker-image <my-environment> gameserver:$GITHUB_SHA
 
       - name: Deploy server
         run: |
-          metaplay-auth deploy-server idler-develop \
+          metaplay-auth deploy-server <my-environment> \
             $GITHUB_SHA \
-            --values=Samples/Idler/Backend/Deployments/develop-server.yaml \
-            --helm-chart-version=0.6.3
+            --values=Backend/Deployments/develop-server.yaml \
+            --helm-chart-version=<chart-version>
 ```

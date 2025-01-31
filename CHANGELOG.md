@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.5] - Unpublished
+
+* Added the `setup-cli' composite action which uses the new Metaplay CLI compatible with Release 32 and beyond.
+
 ## [0.0.4] - 2024-08-29
 
 * Added the `setup-metaplay` composite action which can be used to get more control over the steps in your Github Action workflows.

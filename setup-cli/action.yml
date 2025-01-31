@@ -1,0 +1,28 @@
+name: 'Setup Metaplay CLI'
+description: 'Set up the Metaplay CLI and sign in with the provided machine user credentials'
+inputs:
+  version:
+    description: 'Metaplay CLI version to install'
+    required: false
+    default: 'latest'
+  credentials:
+    description: 'Metaplay machine user credentials'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Metaplay CLI
+      shell: bash
+      run: bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh)
+
+    - name: Authenticate to Metaplay cloud
+      shell: bash
+      run: |
+        export METAPLAY_CREDENTIALS=${{ inputs.credentials }}
+        metaplay auth machine-login
+
+    - name: Verify CLI install
+      shell: bash
+      run: |
+        VERSION=$(metaplay version)
+        echo "Metaplay CLI v${VERSION} installed!"

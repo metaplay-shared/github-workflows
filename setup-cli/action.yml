@@ -20,9 +20,3 @@ runs:
       run: |
         export METAPLAY_CREDENTIALS=${{ inputs.credentials }}
         metaplay auth machine-login
-
-    - name: Verify CLI install
-      shell: bash
-      run: |
-        VERSION=$(metaplay version)
-        echo "Metaplay CLI v${VERSION} installed!"

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.5] - Unpublished
+## [0.1.0] - 2025-02-09
 
 * Added the `setup-cli' composite action which uses the new Metaplay CLI compatible with Release 32 and beyond.
 

@@ -13,7 +13,12 @@ runs:
   steps:
     - name: Install Metaplay CLI
       shell: bash
-      run: bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh)
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh)
+        else
+          bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh) --version ${{ inputs.version }}
+        fi
 
     - name: Authenticate to Metaplay cloud
       shell: bash

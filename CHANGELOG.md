@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.1] - 2025-03-27
+
+* setup-cli: Add support for 'version' argument to specify the CLI version ('0.0.0' is special for head of main branch).
+
 ## [0.1.0] - 2025-02-09
 
 * Added the `setup-cli' composite action which uses the new Metaplay CLI compatible with Release 32 and beyond.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.2] - 2025-07-22
+
+* setup-cli: Use the unthrottled download URL for the CLI `install.sh`. This fixes the occasional 403 errors from the use of the action.
+
 ## [0.1.1] - 2025-03-27
 
 * setup-cli: Add support for 'version' argument to specify the CLI version ('0.0.0' is special for head of main branch).

@@ -15,9 +15,9 @@ runs:
       shell: bash
       run: |
         if [ "${{ inputs.version }}" = "latest" ]; then
-          bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh)
+          bash <(curl -fsSL https://metaplay.github.io/cli/install.sh)
         else
-          bash <(curl -fsSL https://raw.githubusercontent.com/metaplay/cli/main/install.sh) --version ${{ inputs.version }}
+          bash <(curl -fsSL https://metaplay.github.io/cli/install.sh) --version ${{ inputs.version }}
         fi
 
     - name: Authenticate to Metaplay cloud

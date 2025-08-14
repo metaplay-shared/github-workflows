@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.3] - 2025-08-14
+
+* setup-auth-cli: Pin Helm to v3.18.4. Helm v3.18.5 tightens up its JSON schema validation which breaks game server deploys.
+
 ## [0.1.2] - 2025-07-22
 
 * setup-cli: Use the unthrottled download URL for the CLI `install.sh`. This fixes the occasional 403 errors from the use of the action.

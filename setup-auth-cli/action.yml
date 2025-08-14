@@ -23,6 +23,8 @@ runs:
 
     - name: Install Helm v3
       uses: azure/setup-helm@v4
+      with:
+        version: 'v3.18.4'
 
     - name: Verify setup
       run: |

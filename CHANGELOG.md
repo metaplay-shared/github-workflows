@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.4] - 2025-08-15
+
+* `.github\workflows\deploy-server.yaml`: Pin Helm to v3.18.4. Helm v3.18.5 tightens up its JSON schema validation which breaks game server deploys.
+
 ## [0.1.3] - 2025-08-14
 
 * setup-auth-cli: Pin Helm to v3.18.4. Helm v3.18.5 tightens up its JSON schema validation which breaks game server deploys.

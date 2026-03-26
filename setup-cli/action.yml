@@ -30,6 +30,7 @@ runs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
+        $VerbosePreference = 'Continue'
         if ("${{ inputs.version }}" -ne 'latest') {
           $env:METAPLAY_VERSION = "${{ inputs.version }}"
         }

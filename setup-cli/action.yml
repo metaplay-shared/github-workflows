@@ -40,7 +40,7 @@ runs:
         } else {
           $env:METAPLAY_VERSION = $version
         }
-        irm https://raw.githubusercontent.com/metaplay/cli/main/install.ps1 | iex
+        irm https://metaplay.github.io/cli/install.ps1 | iex
 
     - name: Add CLI to PATH (Windows)
       if: runner.os == 'Windows'

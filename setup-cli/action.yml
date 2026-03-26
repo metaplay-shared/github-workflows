@@ -29,10 +29,16 @@ runs:
     - name: Install Metaplay CLI (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        $VerbosePreference = 'Continue'
-        if ("${{ inputs.version }}" -ne 'latest') {
-          $env:METAPLAY_VERSION = "${{ inputs.version }}"
+        $version = "${{ inputs.version }}"
+        if ($version -eq 'latest') {
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'setup-cli-action' }
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/metaplay/cli/releases/latest" -Headers $headers
+          $env:METAPLAY_VERSION = $release.tag_name
+        } else {
+          $env:METAPLAY_VERSION = $version
         }
         irm https://raw.githubusercontent.com/metaplay/cli/main/install.ps1 | iex
 

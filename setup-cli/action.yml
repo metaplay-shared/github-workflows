@@ -11,7 +11,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install Metaplay CLI
+    - name: Install Metaplay CLI (Linux/macOS)
+      if: runner.os != 'Windows'
       shell: bash
       run: |
         if [ "${{ inputs.version }}" = "latest" ]; then
@@ -20,12 +21,29 @@ runs:
           bash <(curl -fsSL --retry 10 --retry-all-errors --retry-max-time 60 https://metaplay.github.io/cli/install.sh) --version ${{ inputs.version }}
         fi
 
-    - name: Add CLI to PATH
+    - name: Add CLI to PATH (Linux/macOS)
+      if: runner.os != 'Windows'
       shell: bash
       run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+    - name: Install Metaplay CLI (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        if ("${{ inputs.version }}" -ne "latest") {
+          $env:METAPLAY_VERSION = "${{ inputs.version }}"
+        }
+        irm https://metaplay.github.io/cli/install.ps1 | iex
+
+    - name: Add CLI to PATH (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\metaplay\bin"
+
     - name: Authenticate to Metaplay cloud
       shell: bash
-      run: |
-        export METAPLAY_CREDENTIALS=${{ inputs.credentials }}
-        metaplay auth machine-login
+      env:
+        METAPLAY_CREDENTIALS: ${{ inputs.credentials }}
+      run: metaplay auth machine-login

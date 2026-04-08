@@ -1,13 +1,17 @@
 name: 'Setup Metaplay CLI'
-description: 'Set up the Metaplay CLI and sign in with the provided machine user credentials'
+description: 'Set up the Metaplay CLI and optionally sign in with the provided machine user credentials'
 inputs:
   version:
     description: 'Metaplay CLI version to install'
     required: false
     default: 'latest'
+  login:
+    description: 'Whether to authenticate to Metaplay cloud after installing the CLI'
+    required: false
+    default: 'true'
   credentials:
-    description: 'Metaplay machine user credentials'
-    required: true
+    description: 'Metaplay machine user credentials (required when login is true)'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -42,7 +46,15 @@ runs:
       shell: pwsh
       run: Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\metaplay\bin"
 
+    - name: Validate inputs
+      if: inputs.login == 'true' && inputs.credentials == ''
+      shell: bash
+      run: |
+        echo "::error::'credentials' input is required when 'login' is true. Either provide 'credentials' to authenticate, or set 'login: false' to install the CLI without authentication (e.g., for running tests)."
+        exit 1
+
     - name: Authenticate to Metaplay cloud
+      if: inputs.login == 'true'
       shell: bash
       env:
         METAPLAY_CREDENTIALS: ${{ inputs.credentials }}

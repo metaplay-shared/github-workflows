@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2026-04-08
+
+* setup-cli: Make authentication optional via new `login` input. Set `login: false` to install the CLI without authenticating (e.g., for running tests). Existing callers are unaffected as `login` defaults to `true`.
+
 ## [0.2.0] - 2026-04-01
 
 * setup-cli: Add Windows support for installing the Metaplay CLI on Windows runners.
